@@ -70,7 +70,7 @@ export class ConfigurationService implements vscode.Disposable {
             completionCacheMaxEntries: config.get<number>('completionCacheMaxEntries', DEFAULTS.completionCacheMaxEntries),
             completionCacheTtlMs: config.get<number>('completionCacheTtlMs', DEFAULTS.completionCacheTtlMs),
             lspCacheMaxEntries: config.get<number>('lspCacheMaxEntries', DEFAULTS.lspCacheMaxEntries),
-        }
+        };
     }
 
     private notifyListeners(): void {

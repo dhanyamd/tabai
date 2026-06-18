@@ -15,6 +15,55 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "TabAI",
+      "properties": {
+        "tabai.openrouterApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenRouter API key (checked first if set)."
+        },
+        "tabai.groqApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Groq API key (used if OpenRouter key is not set)."
+        },
+        "tabai.fireworksApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Fireworks API key (used if OpenRouter and Groq keys are not set)."
+        },
+        "tabai.model": {
+          "type": "string",
+          "default": "qwen/qwen3-32b",
+          "description": "Model ID sent to the active API provider."
+        },
+        "tabai.maxTokens": {
+          "type": "number",
+          "default": 500,
+          "minimum": 1,
+          "description": "Maximum tokens per completion request."
+        },
+        "tabai.completionCacheMaxEntries": {
+          "type": "number",
+          "default": 100,
+          "minimum": 1,
+          "description": "Maximum number of cached inline completions."
+        },
+        "tabai.completionCacheTtlMs": {
+          "type": "number",
+          "default": 30000,
+          "minimum": 0,
+          "description": "Time-to-live for cached completions, in milliseconds."
+        },
+        "tabai.lspCacheMaxEntries": {
+          "type": "number",
+          "default": 100,
+          "minimum": 1,
+          "description": "Maximum number of cached LSP context entries."
+        }
+      }
+    },
     "commands": [
       {
         "command": "tabai.helloWorld",
