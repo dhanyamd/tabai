@@ -1,19 +1,123 @@
 import * as vscode from 'vscode';
 import { InlineCompletionProvider } from './providers/inlineCompletionProvider';
+import { ASTService } from './services/astService';
+
+let provider: InlineCompletionProvider | undefined;
+let outputChannel: vscode.OutputChannel | undefined;
+let astService: ASTService | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
-	const outputChannel = vscode.window.createOutputChannel('tabai');
-	outputChannel.appendLine('tabai extension activated');
-	outputChannel.show(true);
+	outputChannel = vscode.window.createOutputChannel('Tab Completion');
+	outputChannel.appendLine('Tab Completion extension activated');
 
-	const provider = new InlineCompletionProvider(outputChannel);
+	astService = new ASTService(context.extensionPath)
+	astService.initialize().then(() => {
+		outputChannel?.appendLine('AST Service initialized')
+
+		const activeEditor = vscode.window.activeTextEditor
+		if (activeEditor) {
+			astService?.ensureLanguage(activeEditor.document.languageId);
+		}
+	})
+
+	vscode.window.onDidChangeActiveTextEditor((editor) => {
+		if (editor && astService?.isReady) {
+			astService.ensureLanguage(editor.document.languageId);
+		}
+	})
+
+	provider = new InlineCompletionProvider(astService, outputChannel);
 
 	const providerDisposable = vscode.languages.registerInlineCompletionItemProvider(
 		{ pattern: '**' },
 		provider
+	)
+
+	const acceptCompletionCommand = vscode.commands.registerCommand(
+		'tab-completion.acceptCompletion',
+		async () => {
+			outputChannel?.appendLine('[Extension] Accept completion command executed');
+
+			const editor = vscode.window.activeTextEditor;
+			if (!editor || !provider) {
+				outputChannel?.appendLine('[Extension] No editor or provider');
+				return;
+			}
+
+			const pendingEdit = provider.getPendingEdit();
+			if (!pendingEdit) {
+				outputChannel?.appendLine('[Extension] No pending edit, falling back to normal tab');
+				// No pending completion - execute normal tab behavior
+				await vscode.commands.executeCommand('tab');
+				return;
+			}
+
+			outputChannel?.appendLine(`[Extension] Applying edit: delete ${pendingEdit.deleteRange.start.line}:${pendingEdit.deleteRange.start.character}-${pendingEdit.deleteRange.end.line}:${pendingEdit.deleteRange.end.character}, insert "${pendingEdit.insertText.slice(0, 30)}..."`);
+
+			// Apply the edit
+			const success = await editor.edit((editBuilder) => {
+				editBuilder.replace(pendingEdit.deleteRange, pendingEdit.insertText);
+			}, {
+				undoStopBefore: true,
+				undoStopAfter: true,
+			});
+
+			if (success) {
+				outputChannel?.appendLine('[Extension] Edit applied successfully');
+				// Move cursor to end of inserted text
+				const insertLines = pendingEdit.insertText.split('\n');
+				const insertEnd = insertLines.length === 1
+					? new vscode.Position(pendingEdit.deleteRange.start.line, pendingEdit.deleteRange.start.character + pendingEdit.insertText.length)
+					: new vscode.Position(pendingEdit.deleteRange.start.line + insertLines.length - 1, insertLines[insertLines.length - 1].length);
+				editor.selection = new vscode.Selection(insertEnd, insertEnd);
+
+				// Record accepted suggestion in intent tracker
+				provider.getIntentTracker()?.recordAcceptedSuggestion(
+					editor.document.uri.fsPath,
+					pendingEdit.deleteRange.start.line + 1,  // 1-indexed
+					pendingEdit.insertText
+				);
+			} else {
+				outputChannel?.appendLine('[Extension] Edit failed to apply');
+			}
+
+			// Clear completion state (decorations, pending edit, context)
+			provider.clearPendingCompletion();
+		}
 	);
 
-	context.subscriptions.push(providerDisposable, outputChannel);
+	const rejectCompletionCommand = vscode.commands.registerCommand(
+		'tab-completion.rejectCompletion',
+		async () => {
+			outputChannel?.appendLine('[Extension] Reject completion command executed');
+
+			const editor = vscode.window.activeTextEditor;
+			if (!editor || !provider) {
+				outputChannel?.appendLine('[Extension] No editor or provider');
+				return;
+			}
+
+			const pendingEdit = provider.getPendingEdit();
+			if (!pendingEdit) {
+				outputChannel?.appendLine('[Extension] No pending edit, falling back to normal tab');
+				return;
+			}
+
+			// Record accepted suggestion in intent tracker
+			provider.getIntentTracker()?.recordRejectedSuggestion(
+				editor.document.uri.fsPath,
+				pendingEdit.deleteRange.start.line + 1,  // 1-indexed
+				pendingEdit.insertText
+			);
+
+
+			// Clear completion state (decorations, pending edit, context)
+			provider.clearPendingCompletion();
+		}
+	);
+
+	context.subscriptions.push(providerDisposable, outputChannel, acceptCompletionCommand, rejectCompletionCommand);
 }
 
-export function deactivate() {}
+// This method is called when your extension is deactivated
+export function deactivate() { }

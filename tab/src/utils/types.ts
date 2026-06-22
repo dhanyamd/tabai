@@ -23,6 +23,7 @@ export interface ChatMessage {
 export interface ReplacementEdit {
     deleteRange: vscode.Range;
     insertText: string;
+    startPosition: vscode.Position;
     deletedText: string;
     _actualDeleteRange: vscode.Range | undefined;
 }

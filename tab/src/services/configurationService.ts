@@ -1,15 +1,13 @@
 import * as vscode from 'vscode';
 
 export interface TabCompletionConfig {
-    // API Keys
     fireworksApiKey: string;
     groqApiKey: string;
     openrouterApiKey: string;
-    // Model Settings
-    model: string;
+    groqModel: string;
+    openrouterModel: string;
+    fireworksModel: string;
     maxTokens: number;
-
-    // Cache Settings
     completionCacheMaxEntries: number;
     completionCacheTtlMs: number;
     lspCacheMaxEntries: number;
@@ -20,7 +18,10 @@ const DEFAULTS: TabCompletionConfig = {
     groqApiKey: '',
     openrouterApiKey: '',
 
-    model: 'qwen/qwen3-32b',
+    groqModel: 'llama-3.1-8b-instant',
+    openrouterModel: 'meta-llama/llama-3.3-70b-instruct:free',
+    fireworksModel: 'accounts/fireworks/models/llama-v3p1-8b-instruct',
+
     maxTokens: 500,
 
     completionCacheMaxEntries: 100,
@@ -65,8 +66,10 @@ export class ConfigurationService implements vscode.Disposable {
             fireworksApiKey: config.get<string>('fireworksApiKey', DEFAULTS.fireworksApiKey),
             groqApiKey: config.get<string>('groqApiKey', DEFAULTS.groqApiKey),
             openrouterApiKey: config.get<string>('openrouterApiKey', DEFAULTS.openrouterApiKey),
+            groqModel: config.get<string>('groqModel', DEFAULTS.groqModel),
+            openrouterModel: config.get<string>('openrouterModel', DEFAULTS.openrouterModel),
+            fireworksModel: config.get<string>('fireworksModel', DEFAULTS.fireworksModel),
             maxTokens: config.get<number>('maxTokens', DEFAULTS.maxTokens),
-            model: config.get<string>('model', DEFAULTS.model),
             completionCacheMaxEntries: config.get<number>('completionCacheMaxEntries', DEFAULTS.completionCacheMaxEntries),
             completionCacheTtlMs: config.get<number>('completionCacheTtlMs', DEFAULTS.completionCacheTtlMs),
             lspCacheMaxEntries: config.get<number>('lspCacheMaxEntries', DEFAULTS.lspCacheMaxEntries),
@@ -83,7 +86,9 @@ export class ConfigurationService implements vscode.Disposable {
         }
     }
 
-    get model(): string { return this.cachedConfig.model };
+    get groqModel(): string { return this.cachedConfig.groqModel };
+    get openrouterModel(): string { return this.cachedConfig.openrouterModel };
+    get fireworksModel(): string { return this.cachedConfig.fireworksModel };
     get fireworksApiKey(): string { return this.cachedConfig.fireworksApiKey };
     get groqApiKey(): string { return this.cachedConfig.groqApiKey };
     get openrouterApiKey(): string { return this.cachedConfig.openrouterApiKey };

@@ -18,25 +18,35 @@
     "configuration": {
       "title": "TabAI",
       "properties": {
-        "tabai.openrouterApiKey": {
-          "type": "string",
-          "default": "",
-          "description": "OpenRouter API key (checked first if set)."
-        },
         "tabai.groqApiKey": {
           "type": "string",
           "default": "",
-          "description": "Groq API key (used if OpenRouter key is not set)."
+          "description": "Groq API key (primary provider). Get one at https://console.groq.com"
+        },
+        "tabai.groqModel": {
+          "type": "string",
+          "default": "llama-3.1-8b-instant",
+          "description": "Groq model ID. Fast: llama-3.1-8b-instant. Quality: llama-3.3-70b-versatile."
+        },
+        "tabai.openrouterApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenRouter API key (used if Groq key is not set)."
+        },
+        "tabai.openrouterModel": {
+          "type": "string",
+          "default": "meta-llama/llama-3.3-70b-instruct:free",
+          "description": "OpenRouter model ID (only used with OpenRouter)."
         },
         "tabai.fireworksApiKey": {
           "type": "string",
           "default": "",
-          "description": "Fireworks API key (used if OpenRouter and Groq keys are not set)."
+          "description": "Fireworks API key (used if Groq and OpenRouter keys are not set)."
         },
-        "tabai.model": {
+        "tabai.fireworksModel": {
           "type": "string",
-          "default": "qwen/qwen3-32b",
-          "description": "Model ID sent to the active API provider."
+          "default": "accounts/fireworks/models/llama-v3p1-8b-instruct",
+          "description": "Fireworks model ID (only used with Fireworks)."
         },
         "tabai.maxTokens": {
           "type": "number",
