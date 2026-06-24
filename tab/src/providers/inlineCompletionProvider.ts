@@ -215,7 +215,7 @@ export class InlineCompletionProvider implements vscode.InlineCompletionItemProv
         this.pendingCompletion = {
             documentUri: document.uri.toString(),
             edit,
-        }
+        };
 
         if (edit.deletedText.length > 0) {
             const editor = vscode.window.activeTextEditor;
