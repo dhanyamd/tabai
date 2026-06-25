@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { ApiClient } from '../api/apiClient';
 import { ChatMessage, PendingCompletion, ReplacementEdit } from '../utils/types';
+import { CompletionCache } from '../cache/completionCache';
+import { IntentTracker } from '../services/intenttracker';
 
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {
