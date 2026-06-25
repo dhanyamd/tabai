@@ -12,7 +12,7 @@ export class IntentTracker implements vscode.Disposable {
     private idCounter: number = 0;
 
     constructor() {
-        this.registerListeners();
+        this.registerListeners(  );
     }
 
     computeHash(): string {
