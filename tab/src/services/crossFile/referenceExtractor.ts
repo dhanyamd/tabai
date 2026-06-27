@@ -51,7 +51,7 @@ export class ReferenceExtractor {
         // }
 
         const references = new Set<string>();
-        const originalByAlias = new Map<string, string>
+        const originalByAlias = new Map<string, string>();
 
         for (const [original, aliases] of aliasesByOriginal) {
             for (const alias of aliases) {

@@ -3,6 +3,9 @@ import { ApiClient } from '../api/apiClient';
 import { ChatMessage, PendingCompletion, ReplacementEdit } from '../utils/types';
 import { CompletionCache } from '../cache/completionCache';
 import { IntentTracker } from '../services/intenttracker';
+import { ContextGatherer } from '../services/contextGatherer';
+import { ASTService } from '../services/astService';
+import { DeduplicationService } from '../services/deduplicationService';
 
 
 export class InlineCompletionProvider implements vscode.InlineCompletionItemProvider {

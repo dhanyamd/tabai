@@ -44,13 +44,13 @@ export class CrossFileService implements vscode.Disposable {
             symbol => nearbyContext.referenceNames.has(symbol.name)
                 && symbol.kind !== vscode.SymbolKind.Method
                 && symbol.kind !== vscode.SymbolKind.Constructor
-        )
+        );
 
         if (referencedCandidates.length === 0) {
-            return []
+            return [];
         }
 
-        const result = this.signatureProvider.extract(referencedCandidates)
+        const result = this.signatureProvider.extract(referencedCandidates);
 
         return result;
     }
@@ -63,7 +63,7 @@ export class CrossFileService implements vscode.Disposable {
             vscode.workspace.onDidOpenTextDocument((doc) => {
                 this.symbolIndex.indexDocument(doc);
             }),
-        )
+        );
     }
     dispose() {
         this.disposables.forEach((d) => d.dispose());
